@@ -1,6 +1,7 @@
 #<editor-fold desc="Imports">
 import argparse
 import FTPLT
+import FLMS
 #</editor-fold>
 
 #<editor-fold desc="Argument Parser">
@@ -10,6 +11,7 @@ parser.add_argument("driver", help = "Drivers Three Letter Identifier Or Driver 
 parser.add_argument("-y", "--year", help = "The Year For Session (E.G. 2021)", type = int)
 parser.add_argument("-r", "--race", help = "The Race Number(E.G. 10)", type = int)
 parser.add_argument("-s", "--session", help = "The Session Name (E.G. R, SQ, Q, FP3, FP2, FP1)")
+parser.add_argument("-m", "--minisectors", help = "The Amount Of MiniSectors", type = int)
 parser.add_argument("-sp", "--startingpos", help = "The Drivers Starting Position", type = int)
 parser.add_argument("-v", "--verbose", help="Increase The Output Verbosity", action="store_true")
 #</editor-fold>
@@ -18,7 +20,12 @@ args = parser.parse_args()
 if args.mode == "FTPLT":
     #Check The Needed Args Are Supplied
     if args.year is not None and args.race is not None and args.session is not None:
-        FTPLT.FastestTechnicallyPossibleLapTime(args.driver, args.year, args.race, args.session, args.verbose)
+        FTPLT.FastestTechnicallyPossibleLapTime(args.driver, args.year, args.race, args.session, args.minisectors, args.verbose)
+    else:
+        print("Incorrect Arguments Inputted")
+elif args.mode == "FLMS":
+    if args.year is not None and args.race is not None and args.session is not None:
+        FLMS.FastestLapMiniSectors(args.driver, args.year, args.race, args.session, args.minisectors, args.verbose)
     else:
         print("Incorrect Arguments Inputted")
 elif args.mode == "PRP":

@@ -3,18 +3,26 @@ import fastf1 as ff1
 from fastf1 import plotting
 import pandas as pd
 import datetime
+import FLMS
+from rich.console import Console
+from rich.table import Table
+from rich import box
+from rich.style import Style
 #</editor-fold>
 
 #<editor-fold desc="Setups">
 plotting.setup_mpl()
 ff1.Cache.enable_cache('Cache/')
 pd.options.mode.chained_assignment = None
+
+console = Console(highlight = False)
+mainStyle = Style(color = "yellow")
 #</editor-fold>
 
-def FastestTechnicallyPossibleLapTime(driver, year, race, session, verbose):
+def FastestTechnicallyPossibleLapTime(driver, year, race, session, msCount, verbose):
     #Gets The Laps From The Inputted Race Info
-    race = ff1.get_session(year, race, session)
-    laps = race.load_laps(with_telemetry=True)
+    F1Session = ff1.get_session(year, race, session)
+    laps = F1Session.load_laps(with_telemetry=True)
 
     #Pics The Laps From The Inputted Driver
     driverLaps = laps.pick_driver(driver)
@@ -31,8 +39,13 @@ def FastestTechnicallyPossibleLapTime(driver, year, race, session, verbose):
         #Adds It To The Total Telemetry
         telemetry = telemetry.append(driver_telemetry)
 
-    #The Amount Of MiniSectors
-    numberOfMiniSectors = 25
+    #Sets The Amount Of MiniSectors
+    if msCount is None:
+        #The Default Is 25
+        numberOfMiniSectors = 25
+    else:
+        numberOfMiniSectors = msCount
+
     #The Laps Total Distance
     totalLapDistance = max(telemetry['Distance'])
 
@@ -65,6 +78,19 @@ def FastestTechnicallyPossibleLapTime(driver, year, race, session, verbose):
     fastestPosLapTime = datetime.timedelta()
     #Creates A New Array To Hold All Of The Laps Used In The Fastest Technically Possible Lap Time
     lapsUsed = []
+    #Creates A New Array To Hold The MiniSector Times
+    FMSTimes = []
+
+    #If Verbose Was Passed In As A Parameter
+    if verbose:
+        #Creates A Table To Output The Results
+        FTPMSTable = Table(title = "Fastest Technically Possible MiniSectors", box = box.SIMPLE, title_style = mainStyle)
+        #Adds The Columns
+        FTPMSTable.add_column("MiniSector", justify = "center")
+        FTPMSTable.add_column("Speed", justify = "center")
+        FTPMSTable.add_column("Gear", justify = "center")
+        FTPMSTable.add_column("~Time", justify = "center")
+        FTPMSTable.add_column("Lap", justify = "center")
 
     #Loops Through All Of The Fastest MiniSectors To Work Out Their Rough/Estimated Time (Distance / Speed)
     for index, row in fastestMiniSectors.iterrows():
@@ -74,25 +100,59 @@ def FastestTechnicallyPossibleLapTime(driver, year, race, session, verbose):
         #Adds This MiniSectors Time To The Overall Laps Time
         fastestPosLapTime += datetime.timedelta(seconds=estimatedTime)
 
+        #Adds This MiniSectors Time To The Array
+        FMSTimes.append(datetime.timedelta(seconds=estimatedTime))
+
         #If The Lap This Was From Hasn't Already Been Added To The Array Add It
         if row['Lap'] not in lapsUsed:
             lapsUsed.append(row['Lap'])
 
         #If Verbose Was Passed In As A Parameter
         if verbose:
-            #Prints Out Some More Detailed Info About Each MiniSector
-            print("MiniSector " + str(row['MiniSector']) + " | Speed " + str(row['Speed']) + " | Time " + str(estimatedTime) + " | On Lap " + str(row['Lap']) + " | Gear " + str(row['Gear']))
+            #Adds Some More Detailed Info About Each MiniSector To The Table
+            FTPMSTable.add_row(str(int(row['MiniSector'])), str(row['Speed']), str(row['Gear']), str(estimatedTime), str(int(row['Lap'])))
+
+    #If Verbose Was Passed In As A Parameter
+    if verbose:
+    #Prints Out The FTPMSTable
+        console.print(FTPMSTable)
 
     #Prints Out What The Fastest Technically Possible Lap Time Is
-    print("Fastest Technically Possible Lap Time ~" + str(fastestPosLapTime))
+    console.print("Fastest Technically Possible Lap Time ~" + str(fastestPosLapTime), style = mainStyle)
 
     #The Driver Actual Fastest Lap
     driverActualFastestLap = driverLaps.pick_fastest()
     #Prints Out What The Fastest Lap Actually Was
-    print("Actual Fastest Lap " + str(driverActualFastestLap['LapTime'].to_pytimedelta()) + " On Lap " + str(driverActualFastestLap['LapNumber']))
+    console.print("Actual Fastest Lap " + str(driverActualFastestLap['LapTime'].to_pytimedelta()) + " On Lap " + str(driverActualFastestLap['LapNumber']), style = mainStyle)
 
     #Prints Out What Laps Were Used To Make The Fastest Technically Possible Lap Time
-    print("Fastest Technically Possible Time Made Up From MiniSectors On Laps:" + str(lapsUsed))
+    console.print("Fastest Technically Possible Time Made Up From MiniSectors On Laps: " + str(lapsUsed), style = mainStyle)
 
     #Prints Out The Time Differance Between The Two Laps
-    print("Differance In Lap Times: " + str((driverActualFastestLap['LapTime'] - fastestPosLapTime).to_pytimedelta()))
+    console.print("Differance In Lap Times: [red]" + str((driverActualFastestLap['LapTime'] - fastestPosLapTime).to_pytimedelta()) + "[/red]", style = mainStyle)
+
+    #If Verbose Is Passes In
+    if verbose:
+        #Gets The Drives Fastest Lap MiniSectors TODO This Seems Cumbersome Try And Redo This
+        fastestLapMiniSectors = FLMS.FastestLapMiniSectors(driver, year, race, session, msCount, False, True)
+
+        #Creates A Table To Output The Results
+        lapTimeTable = Table(title = "Actual Fastest Lap Vs Fastest Technically Possible Lap", box = box.SIMPLE, title_style = mainStyle)
+        #Adds The Columns
+        lapTimeTable.add_column("MiniSector", justify="center")
+        lapTimeTable.add_column("Gain/Loss", justify="center")
+        lapTimeTable.add_column("Time Differance", justify="center")
+
+        # Loops Through All Of The MiniSectors To Work Out Their Rough/Estimated Time (Distance / Speed)
+        for index, row in fastestLapMiniSectors.iterrows():
+            # Works Out The Time (Speed Is Divided By 3.6 To Convert From M/S To Km/H)
+            estimatedTime = miniSectorLength / (row['Speed'] / 3.6)
+            #The Time Value Of This MiniSector
+            fastestLapMSTime = datetime.timedelta(seconds = estimatedTime)
+
+            if fastestLapMSTime > FMSTimes[int(row['MiniSector']) - 1]:
+                lapTimeTable.add_row(str(int(row['MiniSector'])), "Lost", "[red]" + str(fastestLapMSTime - FMSTimes[int(row['MiniSector']) - 1]) + "[/red]")
+            else:
+                lapTimeTable.add_row(str(int(row['MiniSector'])), "Gained", "[green]" + str(FMSTimes[int(row['MiniSector']) - 1] - fastestLapMSTime) + "[/green]")
+
+        console.print(lapTimeTable)
