@@ -18,7 +18,7 @@ console = Console(highlight = False)
 mainStyle = Style(color = "yellow")
 #</editor-fold>
 
-def FastestLapMiniSectors(driver, year, race, session, msCount, verbose, returnMode = False):
+def FastestLapMiniSectors(driver, year, race, session, msCount, returnMode = False):
     #Gets The Laps From The Inputted Race Info
     race = ff1.get_session(year, race, session)
     laps = race.load_laps(with_telemetry=True)
@@ -73,8 +73,6 @@ def FastestLapMiniSectors(driver, year, race, session, msCount, verbose, returnM
 
     #Creates A New TimeDelta To Hold The Lap Time
     fastestPosLapTime = datetime.timedelta()
-    #Creates A New Array To Hold All Of The Laps Used In The Fastest Technically Possible Lap Time
-    lapsUsed = []
 
     # Creates A Table To Output The Results
     FLMSTable = Table(title="Fastest Lap MiniSectors", box=box.SIMPLE, title_style=mainStyle)
@@ -83,7 +81,6 @@ def FastestLapMiniSectors(driver, year, race, session, msCount, verbose, returnM
     FLMSTable.add_column("Speed", justify="center")
     FLMSTable.add_column("Gear", justify="center")
     FLMSTable.add_column("~Time", justify="center")
-    FLMSTable.add_column("Lap", justify="center")
 
     #Loops Through All Of The Fastest MiniSectors To Work Out Their Rough/Estimated Time (Distance / Speed)
     for index, row in fastestMiniSectors.iterrows():
@@ -93,12 +90,8 @@ def FastestLapMiniSectors(driver, year, race, session, msCount, verbose, returnM
         #Adds This MiniSectors Time To The Overall Laps Time
         fastestPosLapTime += datetime.timedelta(seconds=estimatedTime)
 
-        #If The Lap This Was From Hasn't Already Been Added To The Array Add It
-        if row['Lap'] not in lapsUsed:
-            lapsUsed.append(row['Lap'])
-
         #Prints Out Some More Detailed Info About Each MiniSector
-        FLMSTable.add_row(str(int(row['MiniSector'])), str(row['Speed']), str(row['Gear']), str(estimatedTime), str(int(row['Lap'])))
+        FLMSTable.add_row(str(int(row['MiniSector'])), str(row['Speed']), str(row['Gear']), str(estimatedTime))
 
     if not returnMode:
         console.print(FLMSTable)

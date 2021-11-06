@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("mode", help = "The Analysis Mode", type = str)
 parser.add_argument("driver", help = "Drivers Three Letter Identifier Or Driver Number")
 parser.add_argument("-y", "--year", help = "The Year For Session (E.G. 2021)", type = int)
-parser.add_argument("-r", "--race", help = "The Race Number(E.G. 10)", type = int)
+parser.add_argument("-r", "--race", help = "The Race Number(E.G. 10 (Austria))", type = int)
 parser.add_argument("-s", "--session", help = "The Session Name (E.G. R, SQ, Q, FP3, FP2, FP1)")
 parser.add_argument("-m", "--minisectors", help = "The Amount Of MiniSectors", type = int)
 parser.add_argument("-sp", "--startingpos", help = "The Drivers Starting Position", type = int)
@@ -25,7 +25,7 @@ if args.mode == "FTPLT":
         print("Incorrect Arguments Inputted")
 elif args.mode == "FLMS":
     if args.year is not None and args.race is not None and args.session is not None:
-        FLMS.FastestLapMiniSectors(args.driver, args.year, args.race, args.session, args.minisectors, args.verbose)
+        FLMS.FastestLapMiniSectors(args.driver, args.year, args.race, args.session, args.minisectors)
     else:
         print("Incorrect Arguments Inputted")
 elif args.mode == "PRP":

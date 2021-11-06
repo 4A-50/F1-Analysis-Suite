@@ -134,7 +134,7 @@ def FastestTechnicallyPossibleLapTime(driver, year, race, session, msCount, verb
     #If Verbose Is Passes In
     if verbose:
         #Gets The Drives Fastest Lap MiniSectors TODO This Seems Cumbersome Try And Redo This
-        fastestLapMiniSectors = FLMS.FastestLapMiniSectors(driver, year, race, session, msCount, False, True)
+        fastestLapMiniSectors = FLMS.FastestLapMiniSectors(driver, year, race, session, msCount, True)
 
         #Creates A Table To Output The Results
         lapTimeTable = Table(title = "Actual Fastest Lap Vs Fastest Technically Possible Lap", box = box.SIMPLE, title_style = mainStyle)
