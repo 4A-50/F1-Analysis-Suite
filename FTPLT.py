@@ -1,6 +1,5 @@
 #<editor-fold desc="Imports">
 import fastf1 as ff1
-from fastf1 import plotting
 import pandas as pd
 import datetime
 import FLMS
@@ -10,8 +9,7 @@ from rich import box
 from rich.style import Style
 #</editor-fold>
 
-#<editor-fold desc="Setups">
-plotting.setup_mpl()
+#<editor-fold desc="Set Ups">
 ff1.Cache.enable_cache('Cache/')
 pd.options.mode.chained_assignment = None
 
