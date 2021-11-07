@@ -6,6 +6,7 @@ from rich.style import Style
 
 import FTPLT
 import FLMS
+import PRP
 #</editor-fold>
 
 #<editor-fold desc="Set Ups">
@@ -44,7 +45,7 @@ elif args.mode == "FLMS":
         console.print("Incorrect Arguments Inputted", style=errorStyle)
 elif args.mode == "PRP":
     if args.startingpos is not None:
-        print("Predicted Race Position")
+        PRP.PredictedRacePosition(args.driver, args.startingpos, args.verbose)
         console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
     else:
         console.print("Incorrect Arguments Inputted", style=errorStyle)

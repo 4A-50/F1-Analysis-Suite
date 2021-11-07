@@ -34,7 +34,7 @@ def FullCurrentDriverRaceHistory():
             for index in raceResults:
                 #If They Are A Current Driver
                 if index['Driver']['driverId'] in currentDrivers:
-                    #Some Races Before 2004 If Räikkönen or Alonso Retired Crash The Get Driver Call. Try Then Stops The Program Crash
+                    #Some Races Before 2004 If Räikkönen or Alonso Retired Crash The Get Driver Call. Try Then Stops The Program From Crashing
                     try:
                         #Gets The DNF Bool
                         dnfStatus = race.get_driver(index['Driver']['code']).dnf
