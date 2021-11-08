@@ -72,5 +72,5 @@ def AddRaceToHistory(raceYear, raceNumber):
     qualiToRacePos.to_csv('QualiConversions.csv')
 
 
-#FullCurrentDriverRaceHistory() Is Used To Start The CSV
-#AddRaceToHistory(2021, 18) Is Used To Add A Races Data To The End
+#FullCurrentDriverRaceHistory() #Is Used To Start The CSV
+#AddRaceToHistory(2021, 18) # Used To Add A Races Data To The End

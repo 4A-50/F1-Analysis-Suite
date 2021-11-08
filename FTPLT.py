@@ -22,7 +22,7 @@ def FastestTechnicallyPossibleLapTime(driver, year, race, session, msCount, verb
     F1Session = ff1.get_session(year, race, session)
     laps = F1Session.load_laps(with_telemetry=True)
 
-    #Pics The Laps From The Inputted Driver
+    #Picks The Laps From The Inputted Driver
     driverLaps = laps.pick_driver(driver)
 
     #Creates A Dataframe For The Drivers Lap Info

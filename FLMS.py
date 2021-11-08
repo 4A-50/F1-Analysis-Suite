@@ -21,7 +21,7 @@ def FastestLapMiniSectors(driver, year, race, session, msCount, returnMode = Fal
     race = ff1.get_session(year, race, session)
     laps = race.load_laps(with_telemetry=True)
 
-    #Pics The Laps From The Inputted Driver
+    #Picks The Laps From The Inputted Driver
     driverFastestLap = laps.pick_driver(driver).pick_fastest()
 
     #Creates A Dataframe For The Drivers Lap Info
