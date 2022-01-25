@@ -26,10 +26,13 @@ def AllStintsTyrePerformance(driver, year, race, session, verbose):
     laps = F1Session.load_laps(with_telemetry=True)
 
     #Picks The Accurate Laps That Aren't In Or Out Laps From The Inputted Driver
-    driverLaps = laps.pick_driver(driver).pick_wo_box()
+    driverLaps = laps.pick_wo_box()
 
     #Creates A Dataframe For The Drivers Lap Info
     lapInfo = pd.DataFrame(columns=['Lap', 'Stint', 'Compound', 'Life', 'Fresh', 'LapTime'])
+
+    fastestTimePerLap = {}
+    fastestDriverPerLap = {}
 
     # Creates A Table To Output The Results
     outputTable = Table(title="Tyre Lap Info", box=box.SIMPLE, title_style=mainStyle)
@@ -40,23 +43,55 @@ def AllStintsTyrePerformance(driver, year, race, session, verbose):
     outputTable.add_column("Life", justify="center")
     outputTable.add_column("Fresh", justify="center")
     outputTable.add_column("Lap Time", justify="center")
+    outputTable.add_column("Delta", justify="center")
+
+    #If Verbose Was Passed In As A Parameter
+    if verbose:
+        outputTable.add_column("Fast Lap Time", justify="center")
+        outputTable.add_column("Fast Lap Driver", justify="center")
 
     #Loops Through Every Lap In The Race
     for index, row in driverLaps.iterlaps():
-        #Adds The Info To The DataFrame
-        lapInfo = lapInfo.append({'Lap': row['LapNumber'], 'Stint': row['Stint'], 'Compound': row['Compound'], 'Life': row['TyreLife'], 'Fresh': row['FreshTyre'], 'LapTime': row['LapTime']}, ignore_index=True)
+        if row['Driver'] == driver:
+            #Adds The Info To The DataFrame
+            lapInfo = lapInfo.append({'Lap': row['LapNumber'], 'Stint': row['Stint'], 'Compound': row['Compound'], 'Life': row['TyreLife'], 'Fresh': row['FreshTyre'], 'LapTime': row['LapTime']}, ignore_index=True)
+        else:
+            if row['LapNumber'] not in fastestTimePerLap:
+                fastestTimePerLap[row['LapNumber']] = row['LapTime']
+                fastestDriverPerLap[row['LapNumber']] = row['Driver']
+            else:
+                if row['LapTime'] < fastestTimePerLap[row['LapNumber']]:
+                    fastestTimePerLap[row['LapNumber']] = row['LapTime']
+                    fastestDriverPerLap[row['LapNumber']] = row['Driver']
 
-        #If Verbose Is Passed In
+
+    #Add's The Fastest Lap Times To The Table
+    for index, row in lapInfo.iterrows():
+        #Get The Tyres Colour
+        colourCodedCompound = "[" + tyreColorCodes[row['Compound']] + "]" + row['Compound'] + "[/" + tyreColorCodes[row['Compound']] + "]"
+
+        #Re-Configures The Lap Time
+        driverLapTime = datetime.timedelta(seconds=row['LapTime'].seconds, microseconds=row['LapTime'].microseconds)
+
+        #Re-Configures The Fastest Lap Time
+        fastestLapTime = datetime.timedelta(seconds=fastestTimePerLap[row['Lap']].seconds, microseconds=fastestTimePerLap[row['Lap']].microseconds)
+
+        #Colours The Lap Delta
+        if driverLapTime < fastestLapTime:
+            colouredDelta = "[green]" + str(fastestLapTime - driverLapTime) + "[/green]"
+        else:
+            colouredDelta = "[red]" + str(driverLapTime - fastestLapTime) + "[/red]"
+
+        #If Verbose Was Passed In As A Parameter
         if verbose:
-            #Get The Tyres Colour
-            colourCodedCompound = "[" + tyreColorCodes[row['Compound']] + "]" + row['Compound'] + "[/" + tyreColorCodes[row['Compound']] + "]"
             #Adds The Info To The Table
-            outputTable.add_row(str(int(row['LapNumber'])), str(int(row['Stint'])), colourCodedCompound, str(row['TyreLife']), str(row['FreshTyre']), str(row['LapTime']))
+            outputTable.add_row(str(int(row['Lap'])), str(int(row['Stint'])), colourCodedCompound, str(row['Life']), str(row['Fresh']), str(driverLapTime), colouredDelta, str(fastestLapTime), fastestDriverPerLap[row['Lap']])
+        else:
+            # Adds The Info To The Table
+            outputTable.add_row(str(int(row['Lap'])), str(int(row['Stint'])), colourCodedCompound, str(row['Life']), str(row['Fresh']), str(driverLapTime), colouredDelta)
 
-    #If Verbose Is Passed In
-    if verbose:
-        #Print Out The Table
-        console.print(outputTable)
+    #Print Out The Table
+    console.print(outputTable)
 
 def StintTyrePerformance(driver, year, race, session, stint, verbose):
     print("STP")
