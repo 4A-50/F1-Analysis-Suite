@@ -1,8 +1,9 @@
 #<editor-fold desc="Imports">
 import fastf1 as ff1
+import fastf1.plotting
+import matplotlib.pyplot as plt
 import pandas as pd
 import datetime
-import FLMS
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -12,6 +13,7 @@ from rich.style import Style
 #<editor-fold desc="Set Ups">
 ff1.Cache.enable_cache('Cache/')
 pd.options.mode.chained_assignment = None
+fastf1.plotting.setup_mpl()
 
 console = Console(highlight = False)
 mainStyle = Style(color = "yellow")
@@ -50,6 +52,10 @@ def AllStintsTyrePerformance(driver, year, race, session, verbose):
         outputTable.add_column("Fast Lap Time", justify="center")
         outputTable.add_column("Fast Lap Driver", justify="center")
 
+        #Creates The Graph Info
+        fig, ax = plt.subplots()
+        graphInfo = pd.DataFrame(columns=['Lap', 'Driver', 'FastestLap'])
+
     #Loops Through Every Lap In The Race
     for index, row in driverLaps.iterlaps():
         if row['Driver'] == driver:
@@ -86,6 +92,8 @@ def AllStintsTyrePerformance(driver, year, race, session, verbose):
         if verbose:
             #Adds The Info To The Table
             outputTable.add_row(str(int(row['Lap'])), str(int(row['Stint'])), colourCodedCompound, str(row['Life']), str(row['Fresh']), str(driverLapTime), colouredDelta, str(fastestLapTime), fastestDriverPerLap[row['Lap']])
+
+            graphInfo = graphInfo.append({'Lap': row['Lap'], 'Driver': driverLapTime, 'FastestLap': fastestLapTime}, ignore_index=True)
         else:
             # Adds The Info To The Table
             outputTable.add_row(str(int(row['Lap'])), str(int(row['Stint'])), colourCodedCompound, str(row['Life']), str(row['Fresh']), str(driverLapTime), colouredDelta)
@@ -93,5 +101,14 @@ def AllStintsTyrePerformance(driver, year, race, session, verbose):
     #Print Out The Table
     console.print(outputTable)
 
-def StintTyrePerformance(driver, year, race, session, stint, verbose):
-    print("STP")
+    # If Verbose Was Passed In As A Parameter
+    if verbose:
+        ax.plot(graphInfo['Lap'], graphInfo['Driver'], label = driver)
+        ax.plot(graphInfo['Lap'], graphInfo['FastestLap'], label = 'Fastest Time')
+
+        ax.set_xlabel("Lap Number")
+        ax.set_ylabel("Lap Time")
+
+        ax.legend()
+        plt.suptitle("Driver Tyre Performance Delta \n" + F1Session.weekend.name + " " + str(F1Session.weekend.year))
+        plt.show()
