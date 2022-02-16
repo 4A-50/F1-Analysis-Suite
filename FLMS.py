@@ -1,6 +1,5 @@
 #<editor-fold desc="Imports">
 import fastf1 as ff1
-from fastf1 import plotting
 import pandas as pd
 import datetime
 from rich.console import Console
@@ -9,8 +8,7 @@ from rich import box
 from rich.style import Style
 #</editor-fold>
 
-#<editor-fold desc="Setups">
-plotting.setup_mpl()
+#<editor-fold desc="Set Ups">
 ff1.Cache.enable_cache('Cache/')
 pd.options.mode.chained_assignment = None
 
@@ -23,7 +21,7 @@ def FastestLapMiniSectors(driver, year, race, session, msCount, returnMode = Fal
     race = ff1.get_session(year, race, session)
     laps = race.load_laps(with_telemetry=True)
 
-    #Pics The Laps From The Inputted Driver
+    #Picks The Laps From The Inputted Driver
     driverFastestLap = laps.pick_driver(driver).pick_fastest()
 
     #Creates A Dataframe For The Drivers Lap Info

@@ -1,7 +1,19 @@
 #<editor-fold desc="Imports">
 import argparse
+import time
+from rich.console import Console
+from rich.style import Style
+
 import FTPLT
 import FLMS
+import PRP
+import DTP
+#</editor-fold>
+
+#<editor-fold desc="Set Ups">
+console = Console(highlight = False)
+mainStyle = Style(color = "yellow")
+errorStyle = Style(color = "red")
 #</editor-fold>
 
 #<editor-fold desc="Argument Parser">
@@ -15,23 +27,34 @@ parser.add_argument("-m", "--minisectors", help = "The Amount Of MiniSectors", t
 parser.add_argument("-sp", "--startingpos", help = "The Drivers Starting Position", type = int)
 parser.add_argument("-v", "--verbose", help="Increase The Output Verbosity", action="store_true")
 #</editor-fold>
+
 args = parser.parse_args()
+start_time = time.time()
 
 if args.mode == "FTPLT":
     #Check The Needed Args Are Supplied
     if args.year is not None and args.race is not None and args.session is not None:
         FTPLT.FastestTechnicallyPossibleLapTime(args.driver, args.year, args.race, args.session, args.minisectors, args.verbose)
+        console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
     else:
-        print("Incorrect Arguments Inputted")
+        console.print("Incorrect Arguments Inputted", style=errorStyle)
 elif args.mode == "FLMS":
     if args.year is not None and args.race is not None and args.session is not None:
         FLMS.FastestLapMiniSectors(args.driver, args.year, args.race, args.session, args.minisectors)
+        console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
     else:
-        print("Incorrect Arguments Inputted")
+        console.print("Incorrect Arguments Inputted", style=errorStyle)
 elif args.mode == "PRP":
     if args.startingpos is not None:
-        print("Predicted Race Position")
+        PRP.PredictedRacePosition(args.driver, args.startingpos, args.verbose)
+        console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
     else:
-        print("Incorrect Arguments Inputted")
+        console.print("Incorrect Arguments Inputted", style=errorStyle)
+elif args.mode == "DTP":
+    if args.year is not None and args.race is not None:
+        DTP.AllStintsTyrePerformance(args.driver, args.year, args.race, args.session, args.verbose)
+        console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
+    else:
+        console.print("Incorrect Arguments Inputted", style=errorStyle)
 else:
-    print("Incorrect Mode Inputted")
+    console.print("Incorrect Mode Inputted", style=errorStyle)
