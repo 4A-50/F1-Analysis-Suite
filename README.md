@@ -294,3 +294,27 @@ Most Likely Finishing Place Is 1.
 With A 65% Chance.                              
 ```
 </details>
+
+<details>
+  <summary>Drivers Tyre Performance</summary>
+  
+This Tool Works By Going Through All The Laps Of A Specifed Race To Get A Drivers Lap Time, Which Is Then Compared To The Fastest Time Of That Lap To Produce A Delta Value That Roughly Shows Their Tyre Performance. When Used With The Vervose Parameter It Also Outputs A Graph Showing The Delta.
+
+This Tool Is Run By Using The Mode `DTP`
+
+Requires:
+- `driver` - Drivers Three Letter Identifier (E.G. PER)
+- `-y` `--year` - Year The Session Took Place (E.G. 2021)
+- `-r` `--race` - The Race Weekends Number (E.G. 18 (Mexico))
+- `-s` `--session` - The Session Name (E.G. R, SQ, Q, FP3, FP2, FP1)
+
+Optional:
+- `-v` `--verbose` - Adds More Output Data
+
+Example Run Code: `python main.py DTP PER -y 2021 -r 18 -s R -v`
+
+Which Outputs:
+```Python Console
+
+```
+</details>
