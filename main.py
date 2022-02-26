@@ -8,6 +8,7 @@ import FTPLT
 import FLMS
 import PRP
 import DTP
+import LIVE
 #</editor-fold>
 
 #<editor-fold desc="Set Ups">
@@ -25,6 +26,8 @@ parser.add_argument("-r", "--race", help = "The Race Number(E.G. 10 (Austria))",
 parser.add_argument("-s", "--session", help = "The Session Name (E.G. R, SQ, Q, FP3, FP2, FP1)")
 parser.add_argument("-m", "--minisectors", help = "The Amount Of MiniSectors", type = int)
 parser.add_argument("-sp", "--startingpos", help = "The Drivers Starting Position", type = int)
+parser.add_argument("-us", "--username", help = "Your F1 Login Username")
+parser.add_argument("-pw", "--password", help = "Your F1 Login Password")
 parser.add_argument("-v", "--verbose", help="Increase The Output Verbosity", action="store_true")
 #</editor-fold>
 
@@ -54,6 +57,11 @@ elif args.mode == "DTP":
     if args.year is not None and args.race is not None:
         DTP.AllStintsTyrePerformance(args.driver, args.year, args.race, args.session, args.verbose)
         console.print("Program Completed In " + str(time.time() - start_time) + " Seconds", style=mainStyle)
+    else:
+        console.print("Incorrect Arguments Inputted", style=errorStyle)
+elif args.mode == "LIVE":
+    if args.username is not None and args.password is not None:
+        LIVE.LiveTiming(args.username, args.password)
     else:
         console.print("Incorrect Arguments Inputted", style=errorStyle)
 else:
