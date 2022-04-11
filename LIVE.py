@@ -6,6 +6,8 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 from rich.style import Style
+from requests import Session
+from signalr import Connection
 #</editor-fold>
 
 #<editor-fold desc="Set Ups">
@@ -16,7 +18,51 @@ mainStyle = Style(color = "yellow")
 #</editor-fold>
 
 def LiveTiming(username, password):
-    LiveTimingResults()
+    #LiveTimingResults()
+    with Session() as session:
+        # create a connection
+        connection = Connection("https://livetiming.formula1.com/signalr", session)
+
+        # get chat hub
+        chat = connection.register_hub('chat')
+
+        # start a connection
+        connection.start()
+
+        # create new chat message handler
+        def print_received_message(data):
+            print('received: ', data)
+
+        # create new chat topic handler
+        def print_topic(topic, user):
+            print('topic: ', topic, user)
+
+        # create error handler
+        def print_error(error):
+            print('error: ', error)
+
+        # receive new chat messages from the hub
+        chat.client.on('newMessageReceived', print_received_message)
+
+        # process errors
+        connection.error += print_error
+
+        # start connection, optionally can be connection.start()
+        with connection:
+            # post new message
+            #chat.server.invoke('send', 'Python is here')
+
+            # change chat topic
+            #chat.server.invoke('setTopic', 'Welcome python!')
+
+            # invoke server method that throws error
+            #chat.server.invoke('requestError')
+
+            # post another message
+           # chat.server.invoke('send', 'Bye-bye!')
+
+            # wait a second before exit
+            connection.wait(1)
 
 def LiveTimingResults():
     # Creates A Table To Output The Results
